@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -10,19 +11,19 @@ import (
 	pb "action-service/pb"
 )
 
-type GazeServer struct {
+type HCIServer struct {
 	pb.UnimplementedEyeTrackerServer
 	Mouse *action.MouseController
 }
 
-func NewGazeServer() *GazeServer {
-	return &GazeServer{
+func NewHCIServer() *HCIServer {
+	return &HCIServer{
 		Mouse: action.NewMouseController(),
 	}
 }
 
 // StreamCoordinates is the function the vision service calls to start streaming data
-func (s *GazeServer) StreamCoordinates(stream pb.EyeTracker_StreamCoordinatesServer) error {
+func (s *HCIServer) StreamCoordinates(stream pb.EyeTracker_StreamCoordinatesServer) error {
 	log.Println("Vision Sensor connected to the stream!")
 
 	for {
@@ -51,4 +52,12 @@ func (s *GazeServer) StreamCoordinates(stream pb.EyeTracker_StreamCoordinatesSer
 		// Move the OS mouse cursor
 		s.Mouse.MoveCursor(point.X, point.Y)
 	}
+}
+
+// SendClick receives the trigger from the audio-service and commands the MouseController to click.
+func (s *HCIServer) SendClick(ctx context.Context, req *pb.Empty) (*pb.ClickResponse, error) {
+
+	s.Mouse.Click()
+
+	return &pb.ClickResponse{Success: true}, nil
 }

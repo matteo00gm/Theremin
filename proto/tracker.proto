@@ -7,25 +7,36 @@ package gazecontrol;
 
 // gRPC Service definition
 service EyeTracker {
-  // Client-side streaming: the vision service pushes coordinates to the action service, which will just ack the stream.
+  // Client-side streaming: the movement service pushes coordinates to the action service.
   rpc StreamCoordinates (stream GazePoint) returns (StreamStatus) {}
+
+  // mouse clicks from the audio service.
+  rpc SendClick (Empty) returns (ClickResponse) {}
 }
 
-// data sent for every frame (30-60 times per second)
+// Data sent for every frame (30-60 times per second)
 message GazePoint {
-  // Normalized coordinates (0.0 to 1.0). the action service will handle the screen resolution
+  // Normalized coordinates (0.0 to 1.0).
+  // The action service will handle the screen resolution.
   float x = 1;
   float y = 2;
   
-  // Confidence score from the ML model (0.0 to 1.0). Used to ignore blinks
+  // Confidence score from the ML model (0.0 to 1.0).
   float confidence = 3;
   
   // Unix timestamp in milliseconds. Used for calculating end-to-end system latency.
   int64 timestamp = 4;
 }
 
-// response for when stream closes
+// Response for when the movement stream closes
 message StreamStatus {
   bool success = 1;
   string message = 2;
+}
+
+message Empty {}
+
+// Acknowledgement from the action service
+message ClickResponse {
+  bool success = 1;
 }

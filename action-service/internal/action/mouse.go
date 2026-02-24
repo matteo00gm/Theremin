@@ -23,7 +23,7 @@ func NewMouseController() *MouseController {
 	return &MouseController{
 		ScreenWidth:  width,
 		ScreenHeight: height,
-		Smoothing:    0.40, // Lower = smoother, Higher = faster
+		Smoothing:    0.30, // Lower = smoother, Higher = faster
 	}
 }
 
@@ -42,4 +42,11 @@ func (m *MouseController) MoveCursor(targetX, targetY float32) {
 	pixelY := int(smoothY * float32(m.ScreenHeight))
 
 	robotgo.Move(pixelX, pixelY)
+}
+
+// Click performs an OS-level mouse click.
+func (m *MouseController) Click() {
+	button := "left"
+
+	robotgo.Click(button)
 }

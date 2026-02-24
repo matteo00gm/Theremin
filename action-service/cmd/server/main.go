@@ -21,10 +21,10 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// 3. Instantiate our custom server logic
-	gazeServer := server.NewGazeServer()
+	hciServer := server.NewHCIServer()
 
 	// 4. Register our logic with the gRPC framework
-	pb.RegisterEyeTrackerServer(grpcServer, gazeServer)
+	pb.RegisterEyeTrackerServer(grpcServer, hciServer)
 
 	log.Printf("Action Service listening at %v", lis.Addr())
 

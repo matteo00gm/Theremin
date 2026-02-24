@@ -10,3 +10,4 @@ movement-service/face_landmarker.task
 # --- Generated Files ---
 movement-service/pb
 action-service/pb
+audio-service/pb
