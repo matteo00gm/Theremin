@@ -2,7 +2,7 @@
 
 ## Overview
 
-Project Theremin is a distributed, cross-platform, touchless Human-Computer Interface (HCI). It allows users to control their computer mouse entirely hands-free using a webcam for movement (via pinch gestures) and a microphone for clicking (via acoustic "pop" detection).
+Project Theremin is a low latency, touchless Human-Computer Interface (HCI). It allows users to control their computer mouse entirely hands-free using a webcam for movement (via pinch gestures) and a microphone for clicking (via acoustic "pop" detection).
 
 The application is built on a robust, three-service architecture communicating via gRPC microservices:
 * **action-service (Go):** The gRPC server that receives network commands and executes OS-level mouse movements and clicks using `robotgo`.
