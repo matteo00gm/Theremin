@@ -1,19 +1,26 @@
 """
 Orchestrates the microphone detector and gRPC client for touchless clicking.
 """
+import os
 import logging
 import time
+from dotenv import load_dotenv
 from core.detector import AcousticDetector
 from network.grpc_client import AudioClient
+
+# Load configuration from the .env file one folder up
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+GRPC_TARGET = f"{os.getenv('GRPC_HOST', 'localhost')}:{os.getenv('GRPC_PORT', '50051')}"
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def main():
-    logging.info("Initializing audio components...")
+    logging.info(f"Initializing audio components (Target: {GRPC_TARGET})...")
     
     # Initialize the core sensor and network client
     detector = AcousticDetector()
-    client = AudioClient(target_address='localhost:50051')
+    client = AudioClient(target_address=GRPC_TARGET)
 
     logging.info("Audio listener running. Make a 'pop' sound to click!")
     logging.info("Press Ctrl+C to quit.")

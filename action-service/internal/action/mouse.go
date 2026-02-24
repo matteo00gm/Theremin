@@ -2,6 +2,8 @@ package action
 
 import (
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/go-vgo/robotgo"
 )
@@ -20,10 +22,20 @@ func NewMouseController() *MouseController {
 	width, height := robotgo.GetScreenSize()
 	log.Printf("Screen dimensions detected: %dx%d", width, height)
 
+	// Default smoothing value
+	smoothing := float32(0.30)
+
+	// Override from .env if present
+	if envSmooth := os.Getenv("MOUSE_SMOOTHING"); envSmooth != "" {
+		if s, err := strconv.ParseFloat(envSmooth, 32); err == nil {
+			smoothing = float32(s)
+		}
+	}
+
 	return &MouseController{
 		ScreenWidth:  width,
 		ScreenHeight: height,
-		Smoothing:    0.30, // Lower = smoother, Higher = faster
+		Smoothing:    smoothing, // Lower = smoother, Higher = faster
 	}
 }
 

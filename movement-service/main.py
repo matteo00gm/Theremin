@@ -1,24 +1,43 @@
 """
 Orchestrates camera init, hand tracker, and gRPC client with pure relative positioning.
 """
+import os
 import cv2
 import logging
+from dotenv import load_dotenv
 from core.tracker import HandTracker
 from network.grpc_client import GazeStreamer
 
-SENSITIVITY_X = 2.5 
-SENSITIVITY_Y = 2.5 
-START_X, START_Y = 0.5, 0.5
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+SENSITIVITY_X = float(os.getenv("SENSITIVITY_X", 2.5))
+SENSITIVITY_Y = float(os.getenv("SENSITIVITY_Y", 2.5))
+START_X = float(os.getenv("START_X", 0.5))
+START_Y = float(os.getenv("START_Y", 0.5))
+CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", 0))
+GRPC_TARGET = f"{os.getenv('GRPC_HOST', 'localhost')}:{os.getenv('GRPC_PORT', '50051')}"
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
+def draw_debug_overlay(image, hand_data):
+    """Abstracts the visual debugging (drawing circles/lines) out of the main loop."""
+    h, w, _ = image.shape
+    color = (0, 255, 0) if hand_data['is_pinched'] else (0, 0, 255)
+    tx, ty = hand_data['thumb_px']
+    ix, iy = hand_data['index_px']
+    
+    cv2.circle(image, (int(tx * w), int(ty * h)), 6, color, -1)
+    cv2.circle(image, (int(ix * w), int(iy * h)), 6, color, -1)
+    cv2.line(image, (int(tx * w), int(ty * h)), (int(ix * w), int(iy * h)), color, 2)
+
+
 def main():
-    logging.info("Initializing components...")
+    logging.info(f"Initializing components (Target: {GRPC_TARGET})...")
     tracker = HandTracker()
-    streamer = GazeStreamer(target_address='localhost:50051')
+    streamer = GazeStreamer(target_address=GRPC_TARGET)
     streamer.start()
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(CAMERA_INDEX)
     if not cap.isOpened():
         logging.error("Could not open the webcam.")
         return
@@ -60,15 +79,8 @@ def main():
 
             was_pinched = current_pinch
 
-            # --- VISUAL DEBUGGING ---
-            color = (0, 255, 0) if current_pinch else (0, 0, 255)
-            h, w, _ = image.shape
-            tx, ty = hand_data['thumb_px']
-            ix, iy = hand_data['index_px']
-            
-            cv2.circle(image, (int(tx * w), int(ty * h)), 6, color, -1)
-            cv2.circle(image, (int(ix * w), int(iy * h)), 6, color, -1)
-            cv2.line(image, (int(tx * w), int(ty * h)), (int(ix * w), int(iy * h)), color, 2)
+            # Draw the visuals using the helper function
+            draw_debug_overlay(image, hand_data)
 
         cv2.imshow('Hand Tracker Sensor', image)
 

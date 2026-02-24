@@ -1,17 +1,21 @@
 """
 Encapsulates the PyAudio logic to detect acoustic transients (pops/clicks).
 """
+import os
 import pyaudio
 import numpy as np
 import time
 import logging
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
-SENSITIVITY_MULTIPLIER = 6.0
-COOLDOWN_SECONDS = 0.3
+SENSITIVITY_MULTIPLIER = float(os.getenv("AUDIO_SENSITIVITY", 6.0))
+COOLDOWN_SECONDS = float(os.getenv("AUDIO_COOLDOWN", 0.3))
 
 class AcousticDetector:
     def __init__(self):
